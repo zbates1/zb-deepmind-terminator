@@ -20,12 +20,12 @@ git clone https://github.com/zbates1/zb-deepmind-terminator.git ./deepmind-termi
 
 **2. Create the conda env**
 ```bash
-conda create -n ./envs/zb-terminator python=3.8
+conda create -p ./envs/zb-terminator python=3.9
 ```
 
 **3. Activate Env** 
 ```bash
-conda activate zb-terminator
+conda activate /path/to/zb-terminator
 ```
 
 **4. Install dependencies** 

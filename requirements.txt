@@ -1,7 +1,8 @@
 # Nucleotide-Transformer Dependencies
 absl-py==1.0.0
 jax==0.3.25
-jaxlib==0.3.25
+# jaxlib==0.3.25
+jaxlib==0.4.14
 dm-haiku==0.0.9
 numpy==1.23.5
 boto3==1.24.28
@@ -16,11 +17,9 @@ numpy
 matplotlib
 seaborn
 argparse
-glob
+glob2
 scikit-learn
 xgboost
-logging
+#logging # SUBPROCESS ERROR == Already came with python install
 json5
-multiprocessing
-csv
-shutil
+#multiprocessing # SUBPROCESS ERROR == Already came with python install
