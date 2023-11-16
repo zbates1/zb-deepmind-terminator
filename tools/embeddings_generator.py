@@ -11,6 +11,9 @@ import jax.numpy as jnp
 from . import get_pretrained_model
 import pandas as pd
 from jax import grad, jit, vmap
+import tensorflow as tf
+
+from create_embeddings_dirname import create_ds_embeds_paths
 
 tf.config.experimental.set_visible_devices([], "GPU")
 #os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"]="false"
@@ -56,7 +59,6 @@ def batch_compiled_sequences(token_ids_array, batch_size=100):
         # all_mean_embeddings.append(mean_embeddings)
         
     return all_embeddings
-#=================================================================
 
 
 # Parse args
@@ -64,13 +66,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process embeddings with dimensionality reduction methods")
     parser.add_argument("--batch_size", type=int, default=1000, help="Number of rows for reshaping embeddings")
     parser.add_argument("--starting_row", type=int, default=0, help="row to start")
-    parser.add_argument("--input_filename", type=str, default = "./term_train_sequences.txt")
+    parser.add_argument("--input_filename", type=str, default = "./data/shalem_15.txt")
     parser.add_argument("--output_basename", type=str, default="embeddings_file.npy")
-    args = parser.parse_args() 
-    output_file_name = f'../data/ds_embeddings/{os.path.basename(args.input_filename).split(".")[0]}_start={args.starting_row}_batchsize={args.batch_size}_{args.output_basename}'
-    # Make folder if it doesn't exist
-    os.makedirs(os.path.dirname(output_file_name), exist_ok=True)
-    print("output filename = ", output_file_name)
+    args = parser.parse_args()
+    
+    # Gather the directory and individual filenames (dir not needed here)
+    raw_embed_filename, _ = create_ds_embeds_paths(input_filename=args.input_filename, args=args)
 
     print('Starting jax')
 
@@ -110,8 +111,8 @@ if __name__ == "__main__":
     token_ids_array = jnp.array(token_ids, dtype=jnp.int32)
         
     # mean_embeddings, embeddings = compiled_process_sequences(token_ids_array)
-    embeddings, mean_embeddings = batch_compiled_sequences(token_ids_array, batch_size=100)
+    embeddings = batch_compiled_sequences(token_ids_array, batch_size=100)
 
-    jax.numpy.save(output_file_name, embeddings, allow_pickle=True, fix_imports=True)
+    jax.numpy.save(raw_embed_filename, embeddings, allow_pickle=True, fix_imports=True)
     print(f'Embedding file index {args.starting_row} saved!')
     sys.exit(0)
