@@ -1,0 +1,26 @@
+FROM huggingface/transformers-pytorch-gpu
+
+RUN apt-get clean && \
+    apt-get update && \
+    apt-get clean
+
+# Install git
+RUN apt-get update && apt-get install -y git
+
+WORKDIR /task
+
+# Install JAX with CUDA. 
+# Note: Not sure if this is necessary for the PyTorch version
+RUN pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# Clone the specific repo
+RUN git clone https://github.com/instadeepai/nucleotide-transformer.git ./nt-terminator && \
+    cd ./nt-terminator && \
+    pip install . && \
+    cd ..
+
+# Install the Python requirements
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+
+# Copy everything from the current directory into the image
+COPY . .

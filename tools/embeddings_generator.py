@@ -8,9 +8,12 @@ import gc
 import haiku as hk
 import jax
 import jax.numpy as jnp
-from . import get_pretrained_model
+from nucleotide_transformer.pretrained import get_pretrained_model # This doesn't seem to work 11/16/23
+import nucleotide_transformer
 import pandas as pd
 from jax import grad, jit, vmap
+import jax.numpy as jnp
+from jax.interpreters import xla
 import tensorflow as tf
 
 from create_embeddings_dirname import create_ds_embeds_paths
@@ -77,12 +80,13 @@ if __name__ == "__main__":
 
 
     # Instantiate the model
+    # Get pretrained model
     parameters, forward_fn, tokenizer, config = get_pretrained_model(
-        model_name="2B5_multi_species",
-        mixed_precision=False,
-        embeddings_layers_to_save=(20,),
-        max_positions=65, 
-    )
+    model_name="2B5_multi_species",
+    embeddings_layers_to_save=(20,),
+    max_positions=65,
+)
+
     forward_fn = hk.transform(forward_fn)
     print('Passed forward_fn')
 

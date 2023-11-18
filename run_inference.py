@@ -6,8 +6,10 @@ import re
 import argparse
 import pandas as pd
 
-from .tools.embeddings_reducer import process_embeddings
-from .tools.create_embeddings_dirname import create_ds_embeds_paths
+import nucleotide_transformer
+from nucleotide_transformer.pretrained import get_pretrained_model
+from tools.embeddings_reducer import process_embeddings
+from tools.create_embeddings_dirname import create_ds_embeds_paths
 
 def run_embeddings_generator(args, num_batches):
     for i in range(0,num_batches):
@@ -20,9 +22,9 @@ def run_embeddings_generator(args, num_batches):
         os.system(cmd)
         
 def process_dataset(file_path, batch_size):
-    sequence_file = pd.read_csv(file_path, header=None)
+    seq_ds = pd.read_csv(file_path, header=None)
     
-    num_batches = len(sequence_file)//batch_size
+    num_batches = len(seq_ds)//batch_size
     print('Number of Batches: ', num_batches)
     
     return seq_ds, num_batches
