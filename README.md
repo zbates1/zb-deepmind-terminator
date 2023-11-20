@@ -28,6 +28,11 @@ conda create -p ./envs/zb-terminator python=3.9
 conda activate /path/to/zb-terminator
 ```
 
+**3. Install CUDA-enabled JAX**
+```bash
+pip install --upgrade "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+```
+
 **4. Install dependencies** 
 ```bash
 pip install -r requirements.txt
@@ -42,5 +47,10 @@ git clone https://github.com/instadeepai/nucleotide-transformer.git ./nt-termina
 ```bash
 pip install .
 ```
+
+## Dockerfile
+
+The Dockerfiles are available for both the PyTorch and JAX versions of this model. 
+
 
 **Now you can use my pipeline to generate embeddings for the Shalem dataset (provided) and do the rest of the analysis.** 

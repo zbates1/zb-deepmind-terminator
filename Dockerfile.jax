@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y git
 WORKDIR /task
 
 # Install Jax with CUDA
-RUN pip install -U "jax[cuda12_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+RUN pip install -U "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
 # Clone the specific repo
 RUN git clone https://github.com/instadeepai/nucleotide-transformer.git ./nt-terminator && \
@@ -18,8 +18,8 @@ RUN git clone https://github.com/instadeepai/nucleotide-transformer.git ./nt-ter
     pip install . && \
     cd ..
 
-# Install the Python requirements
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-
 # Copy everything from the current directory into the image
 COPY . .
+
+# Install the Python requirements
+RUN pip install -r requirements.txt
