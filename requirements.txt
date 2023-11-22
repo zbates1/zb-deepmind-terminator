@@ -1,23 +1,10 @@
-# Nucleotide-Transformer Dependencies
-absl-py==1.0.0
-dm-haiku==0.0.9
-numpy==1.23.5
-boto3==1.24.28
-typing_extensions==3.10.0
-joblib==1.2.0
-tqdm==4.56.0
-regex==2022.1.18
+# requirements.txt
+botocore==1.32.5
+ml-dtypes==0.2.0
+tensorstore==0.1.45
+tensorflow==2.14.0
 
-# zb-deepmind Dependencies
 pandas
-numpy
 matplotlib
 seaborn
-argparse
-glob2
 scikit-learn
-xgboost
-#logging # SUBPROCESS ERROR == Already came with python install
-json5
-#multiprocessing # SUBPROCESS ERROR == Already came with python install
-tensorflow==2.14.0
