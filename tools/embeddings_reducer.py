@@ -1,13 +1,9 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
-import argparse
-import glob
 import sys
 import re
-import argparse
+import glob as glob
 import tqdm
 
 from sklearn.decomposition import PCA
@@ -15,7 +11,8 @@ from sklearn.preprocessing import StandardScaler
 
 
 def extract_embedding_list(embed_file_path):
-    embed_files = glob.glob(f"{embed_file_path}/start_*.npy") 
+    print(f'\nEmbeddings folder passed into extract_embedding_list function: {embed_file_path}')
+    embed_files = glob.glob(f"{embed_file_path}/*npy") 
     print(f"Number of npy files in {embed_file_path}: {len(embed_files)}")
 
     sorted_files = sorted(embed_files, key=extract_number)
@@ -35,7 +32,7 @@ def embeddings_reformat(raw_embeddings, reshape_rows, reshape_cols):
     list_embeddings = raw_embeddings.tolist()
     embeddings_array = np.array(list_embeddings)
     print('\nEmbeddings Array Shape:', embeddings_array.shape)
-    reshaped_embeddings = embeddings_array.reshape(args.reshape_rows, args.reshape_cols)
+    reshaped_embeddings = embeddings_array.reshape(reshape_rows, reshape_cols)
     print('\nReshaped Embeddings Shape:', reshaped_embeddings.shape)
     return reshaped_embeddings
 
@@ -93,17 +90,17 @@ def perform_dimensionality_reduction(combined_embeddings, methods, components, b
     
 
 # ============================================Main Function===============================================
-def process_embeddings(embed_folder_path):
-    print('Embeddings directory passed into embeddings_reducer:', embed_folder_path)
+def process_embeddings(raw_embed_dirname, processed_embed_folder_path):
+    print('Embeddings directory passed into embeddings_reducer:', raw_embed_dirname)
     
-    sorted_embed_files = extract_embedding_list(embed_folder_path)
-    # single_raw_embeddings = load_raw_embeddings(sorted_embed_files)
+    sorted_embed_files = extract_embedding_list(raw_embed_dirname)
     
     combined_embeddings = concat_embeddings(sorted_embed_files, row_num=1000, col_num=-1)
     
     
-    level_one_path_abstraction = os.path.dirname(embed_folder_path)
-    file_path = os.path.join(os.path.dirname(level_one_path_abstraction), 'reduced_embeddings')
+    temp_dirname = os.path.dirname(processed_embed_folder_path)
+    file_path = os.path.join(temp_dirname, 'reduced_embeddings')
+
     os.makedirs(file_path, exist_ok=True)
     print('\nFile Path to save reduced embeddings:', file_path)
     
@@ -112,9 +109,5 @@ def process_embeddings(embed_folder_path):
     
 
 if __name__ == "__main__":
-    # parser = argparse.ArgumentParser(description="Combine embedding files")
-    # parser.add_argument("embed_file_path", type=str, help="The file path to the raw embeddings")
-    # args = parser.parse_args()
-    # main(args)
     
     process_embeddings('./data/ds_embeddings')

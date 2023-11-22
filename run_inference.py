@@ -3,7 +3,6 @@ import argparse
 import glob
 import sys
 import re
-import argparse
 import pandas as pd
 
 import nucleotide_transformer
@@ -56,16 +55,19 @@ if __name__ == "__main__":
     print(f'Number of batches: {num_batches}')
 
 
+    # Gather the path names to the raw embeddings and processed embeddings to process into inputs for following functions
     single_ds_embed_path , embed_dirname = create_ds_embeds_paths(input_filename=args.input_filename, args=args)
-    num_existing_files = len(glob.glob(os.path.dirname(single_ds_embed_path) + '/*.npy'))
-    print(f'Number of existing files in {embed_dirname}: {num_existing_files}')
+    raw_embed_dirname = os.path.dirname(single_ds_embed_path)
+    num_existing_raw_embed_files = len(glob.glob(raw_embed_dirname + '/*.npy'))
+
+    print(f'Number of existing files in {embed_dirname}: {num_existing_raw_embed_files}')
     processed_embeds_dirname = os.path.join(embed_dirname, 'processed')
     print('Embedding Dirname: ', embed_dirname)
     
     print('Running main wrapper function...')
-    main_wrapper(args, num_batches=num_batches, num_existing_files=num_existing_files)
+    main_wrapper(args, num_batches=num_batches, num_existing_files=num_existing_raw_embed_files)
     
     # Lets get the directory name
     print('Finished running embeddings generator, now reducing embeddings...')
 
-    process_embeddings(processed_embeds_dirname)
+    process_embeddings(raw_embed_dirname, processed_embeds_dirname)
