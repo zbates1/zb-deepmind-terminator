@@ -94,6 +94,7 @@ def perform_dimensionality_reduction(combined_embeddings, methods, components, b
 
 # ============================================Main Function===============================================
 def process_embeddings(embed_folder_path):
+    print('Embeddings directory passed into embeddings_reducer:', embed_folder_path)
     
     sorted_embed_files = extract_embedding_list(embed_folder_path)
     # single_raw_embeddings = load_raw_embeddings(sorted_embed_files)

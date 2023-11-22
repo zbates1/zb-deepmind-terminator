@@ -18,7 +18,7 @@ RUN pip install wheel
 
 WORKDIR /task
 
-# Install JAX with CUDA.
+# Install JAX with CUDA. 
 # Note: Not sure if this is necessary for the PyTorch version
 RUN pip install -U "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 

@@ -2,7 +2,7 @@ import os
 
 def create_ds_embeds_paths(input_filename, args):
     
-    ds_embeddings_basedir = '../data/ds_embeddings/'
+    ds_embeddings_basedir = './data/ds_embeddings/'
     single_ds_embed_path = f'{ds_embeddings_basedir}{os.path.basename(input_filename).split(".")[0]}/'
     raw_embed_filename = ''
     if args is not None:
