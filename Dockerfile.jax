@@ -1,25 +1,48 @@
-FROM --platform=amd64 python:3.10-slim-buster
+# Use an image with Conda pre-installed
+FROM continuumio/miniconda3:4.10.3
 
-RUN apt-get clean && \
-    apt-get update && \
-    apt-get clean
+# Set the working directory in the container
+WORKDIR /task
 
 # Install git
 RUN apt-get update && apt-get install -y git
 
-WORKDIR /task
+# Clone the zb-deepmind-terminator repository
+RUN git clone https://github.com/zbates1/zb-deepmind-terminator.git ./zb-deepmind-terminator && \
+    cd ./zb-deepmind-terminator
 
-# Install Jax with CUDA
-RUN pip install -U "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+# Initialize the conda environment
+RUN conda init bash
 
-# Clone the specific repo
-RUN git clone https://github.com/instadeepai/nucleotide-transformer.git ./nt-terminator && \
-    cd ./nt-terminator && \
-    pip install . && \
-    cd ..
+# Create the conda environment
+RUN conda create -p /task/envs/zb-terminator python=3.9
 
-# Copy everything from the current directory into the image
+# Activate the environment
+SHELL ["conda", "run", "-p", "/task/envs/zb-terminator", "/bin/bash", "-c"]
+
+# Install Scipy with Conda
+RUN conda install scipy
+
+# Clone the Nucleotide Transformer Repo
+RUN git clone https://github.com/instadeepai/nucleotide-transformer.git ./nucleotide-transformer
+
+# Copy everything from cwd
 COPY . .
 
-# Install the Python requirements
-RUN pip install -r requirements.txt
+# Install dependencies using Nucleotide-Transformer's setup.py file
+RUN python3 ./nucleotide-transformer/setup.py install
+
+# Install the Nucleotide-Transformer Package
+RUN cd nucleotide-transformer && pip install . && cd ..
+
+# Install CUDA-enabled JAX
+RUN pip install --upgrade "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+# Install the remaining requirements
+RUN pip install -r /task/requirements.txt
+
+# Add the conda environment to the PATH
+RUN echo "conda activate /task/envs/zb-terminator" >> ~/.bashrc
+
+# Set the default command to execute
+CMD ["bash"]

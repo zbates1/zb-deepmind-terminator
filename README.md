@@ -7,7 +7,7 @@ This repository utilizes NVIDIA's Nucleotide Transformer to generate positional 
 - **Nucleotide Transformer**: [GitHub Repository](https://github.com/instadeepai/nucleotide-transformer/tree/main)
 - **Dataset Source Paper**: [PLOS Genetics Article](https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1005147)
 
-> **Note**: The Dockerfile is currently in progress and not ready for production use.
+> **Note**: Conda environments and Dockerfiles are currently available for use :)
 
 ## Setup Instructions
 
@@ -61,8 +61,23 @@ pip install --upgrade "jax[cuda11_pip]" -f https://storage.googleapis.com/jax-re
 
 ## Dockerfile
 
-The Dockerfiles are available for both the PyTorch and JAX versions of this model. 
+> **Note**: The Dockerfile is currently only supporting Jax implementation. The following commands are what I used to build the container
 
+**1. Build the image** 
+```bash
+docker build -t jax_test -f ./Dockerfile.jax .
+```
+
+**2. Containerize**
+```bash
+docker run -it jax_test:latest /bin/bash -c "conda init bash && conda activate /task/envs/zb-terminator && python3 run_inference.py"
+```
+
+
+### Embeddings Generation
 
 **Now you can use my pipeline to generate embeddings for the Shalem dataset (provided) and do the rest of the analysis.** 
 
+> **Note**: If you would like to run your own dataset: 1. format correctly  2. pass --input_filename /path/to/your/ds/in/./data
+
+**Your dataset should be: a text or csv file and have two columns: ['sequences'] and ['gene expression (tpm)']**
