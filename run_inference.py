@@ -34,7 +34,7 @@ def process_dataset(file_path, batch_size):
         
 def main_wrapper(args, num_batches, num_existing_files):
     print('Loading Model...')
-    parameters, forward_fn, tokenizer, config = load_nt_model(model_name="2B5_multi_species", embeddings_layers_to_save=(20,), max_positions=65)
+    parameters, forward_fn, tokenizer, config = load_nt_model(model_name="2B5_multi_species", embeddings_layers_to_save=(args.embeddings_layers_to_save,), max_positions=50)
     
     print('Running Embeddings Generator...')
     run_embeddings_generator(args, num_batches, parameters, forward_fn, tokenizer, config, num_existing_files)
@@ -45,6 +45,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size", type=int, default=1000, help="Number of rows for reshaping embeddings")
     parser.add_argument("--starting_row", type=int, default=0, help="Row to begin")
     parser.add_argument("--input_filename", type=str, default = "./data/shalem_15.txt", help="input filename")
+    parser.add_argument("--embeddings_layers_to_save", type=int, default=10, help="embeddings layers to save")
     parser.add_argument("--output_basename", type=str, default="embeddings_file.npy", help="output basename, default is embeddings_file.npy")
     parser.add_argument("--add_cudnn", type=str, default="", help="add cudnn library path, like this: env LD_LIBRARY_PATH=/usr/local/cuda-11.8/targets/x86_64-linux/include/cudnn.h")
     

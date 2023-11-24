@@ -29,14 +29,14 @@ print('JAX CPU and GPU: ', cpus, gpus)
 
 
 #================ function definitions ======================================================
-def process_sequences(parameters, forward_fn, token_ids, tokenizer):
+def process_sequences(parameters, forward_fn, token_ids, tokenizer, embeddings_layer_to_save):
 
     tokens = jnp.asarray(token_ids, dtype=jnp.int32)
     
     random_key = jax.random.PRNGKey(0)
     outs = forward_fn.apply(parameters, random_key, tokens)
     
-    embeddings = outs["embeddings_20"][:, 1:, :]  # removing CLS token
+    embeddings = outs[f"embeddings_{embeddings_layer_to_save}"][:, 1:, :]  # removing CLS token
     padding_mask = jnp.expand_dims(tokens[:, 1:] != tokenizer.pad_token_id, axis=-1)
     masked_embeddings = embeddings * padding_mask  # multiply by 0 pad tokens embeddings
     sequences_lengths = jnp.sum(padding_mask, axis=1)
@@ -46,7 +46,7 @@ def process_sequences(parameters, forward_fn, token_ids, tokenizer):
 
 
 # Process sequences and get mean embeddings
-def batch_compiled_sequences(token_ids_array, parameters, forward_fn, tokenizer, batch_size):
+def batch_compiled_sequences(token_ids_array, parameters, forward_fn, tokenizer, batch_size, embeddings_layer_to_save):
     all_embeddings = []
     # all_mean_embeddings = []
     
@@ -54,7 +54,7 @@ def batch_compiled_sequences(token_ids_array, parameters, forward_fn, tokenizer,
         print(i,  'Length Token IDs Array: ', len(token_ids_array))
         batch = token_ids_array[i : i + batch_size]
         # mean_embeddings, embeddings = compiled_process_sequences(batch)
-        embeddings = process_sequences(parameters, forward_fn, batch, tokenizer)
+        embeddings = process_sequences(parameters, forward_fn, batch, tokenizer, embeddings_layer_to_save)
         all_embeddings.append(embeddings)        
         print(i, len(all_embeddings))
 
@@ -84,7 +84,7 @@ def main(args, num_batches, parameters, forward_fn, tokenizer, config):
     token_ids_array = jnp.array(token_ids, dtype=jnp.int32)
         
     # mean_embeddings, embeddings = compiled_process_sequences(token_ids_array)
-    embeddings = batch_compiled_sequences(token_ids_array, parameters, forward_fn, tokenizer, batch_size=100)
+    embeddings = batch_compiled_sequences(token_ids_array, parameters, forward_fn, tokenizer, batch_size=100, embeddings_layer_to_save=args.embeddings_layers_to_save)
 
     jax.numpy.save(raw_embed_filename, embeddings, allow_pickle=True, fix_imports=True)
     print(f'\nEmbedding file index {args.starting_row} saved to {raw_embed_filename}!\n')
