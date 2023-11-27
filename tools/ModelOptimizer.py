@@ -8,6 +8,13 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import Ridge, LinearRegression
 from xgboost import XGBRegressor
 from sklearn.model_selection import cross_validate
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge
+from xgboost import XGBRegressor
+from sklearn.decomposition import PCA
+import torch
+
 
 class ModelOptimizer:
     
@@ -129,3 +136,50 @@ class ModelOptimizer:
         globbed_reduced_embeds_path = glob.glob(f'{self.dataset_path}*.npy')
         results = self.optimize_hyperparameters(globbed_reduced_embeds_path)
         self.save_results_to_json(results, self.save_path)
+        
+############################################
+
+    def find_best_model_config(self, specific_model):
+        with open(self.save_path, 'r') as file:
+            data = json.load(file)
+        
+        # Sort the configurations based on the validation score
+        best_config = max(data.items(), key=lambda item: item[1]['Value'])
+        # If specific model is not None, use that string to filter out the models that don't match in item[0]
+        if specific_model:
+            print(f'You selected a specific model from the Optuna results, which means that the best performing model may not have been chosen!')
+            best_config = [key for key in best_config if specific_model in key][0]
+            
+        best_config_params = best_config[1]['Params']
+        
+        X_train_path = best_config[0]
+        
+        return best_config_params, X_train_path
+
+    def cross_validation(self, params, X_train_path, y_train_path):
+        X_train = np.load(X_train_path)
+        y_train = self.smart_read_csv(y_train_path).iloc[:, 1].to_numpy().ravel()
+        
+        if len(X_train) != len(y_train):
+            print("X_train and y_train have different lengths, likely, this is due to the run_inference.py batching, so we will trim the y_train")
+            y_train = y_train[:len(X_train)]
+        
+        # Initialize the model using the best parameters
+        model_class = self.model_mapping.get(params['classifier'])
+        if not model_class:
+            raise ValueError(f"Classifier {params['classifier']} is not recognized.")
+        model_params = {k: v for k, v in params.items() if k != 'classifier'}
+        model = model_class(**model_params)
+
+        print(f'Performing 10-fold cross validation for {params["classifier"]}')
+        cv_results = cross_validate(model, X_train, y_train, cv=10, n_jobs=-1, return_train_score=True, scoring=('neg_mean_squared_error', 'r2'))
+
+        return cv_results['train_r2'].mean(), cv_results['test_r2'].mean(), cv_results
+    
+
+    def kfold_pipeline(self, specific_model):
+        
+        best_params, X_train_path = self.find_best_model_config(specific_model)
+        mean_r2_train, mean_r2_test, cv_results = self.cross_validation(best_params, X_train_path, self.label_data_path)
+        
+        return mean_r2_train, mean_r2_test, cv_results
